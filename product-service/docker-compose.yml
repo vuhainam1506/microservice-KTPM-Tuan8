@@ -21,11 +21,20 @@ services:
       - "27018:27017"
     environment:
       - MONGODB_DATABASE=product_db
+      # Thêm các biến môi trường này để tránh lỗi authentication
+      - MONGODB_INITDB_DATABASE=product_db
     volumes:
       - product-data:/data/db
       - ./init-db:/docker-entrypoint-initdb.d
     networks:
       - product-network
+    # Thêm healthcheck để đảm bảo MongoDB đã sẵn sàng
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/product_db --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
 
 volumes:
   product-data:
