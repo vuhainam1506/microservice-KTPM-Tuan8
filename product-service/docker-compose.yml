@@ -7,38 +7,14 @@ services:
       dockerfile: Dockerfile
     ports:
       - "3001:3001"
-    environment:
-      - PORT=3001
-      - MONGO_URI=mongodb://product-db:27017/product_db
-    depends_on:
-      product-db:
-        condition: service_healthy
+    env_file:
+      - .env
     networks:
       - product-network
-
-  product-db:
-    image: mongo:latest
-    ports:
-      - "27018:27017"
-    environment:
-      - MONGODB_DATABASE=product_db
-      - MONGODB_INITDB_DATABASE=product_db
-    volumes:
-      - product-data:/data/db
-      - ./init-db:/docker-entrypoint-initdb.d
-    networks:
-      - product-network
-    healthcheck:
-      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/product_db --quiet
-      interval: 10s
-      timeout: 10s
-      retries: 5
-      start_period: 40s
-
-volumes:
-  product-data:
 
 networks:
   product-network:
     driver: bridge
+
+
 
